@@ -30,15 +30,22 @@ J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
 
-z2=Theta1*X';
+z2=Theta1*([ones(size(X,1),1),X])';
 a2=1./(1+exp(z2));
 
-z3=Theta2*a2;
+z3=Theta2*[ones(1,size(a2,2));a2];
 a3=1./(1+exp(z3));
+htheta=a3;
 
-J=(1/m
+yres = expandRowVector(size(y,1),num_labels,y);
+yres2=yres';
 
-
+J=0;
+for i=1:size(y,1)
+	J=J-yres2(:,i)'*log(htheta(:,i))-(1-yres2(:,i))'*log(1-htheta(:,i));
+endfor
+J=1/m*J;
+save 'tt.txt' X y htheta yres yres2;
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
 %               following parts.
