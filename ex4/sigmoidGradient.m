@@ -13,7 +13,8 @@ g = zeros(size(z));
 %               each value of z (z can be a matrix, vector or scalar).
 
 
-
+sigm=1./(1+exp(-z));
+g=sigm.*(1-sigm);
 
 
 

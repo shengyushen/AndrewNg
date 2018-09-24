@@ -30,11 +30,21 @@ J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
 
+%save 'tt.txt' X y htheta yres yres2;
+% ====================== YOUR CODE HERE ======================
+% Instructions: You should complete the code by working through the
+%               following parts.
+%
+% Part 1: Feedforward the neural network and return the cost in the
+%         variable J. After implementing Part 1, you can verify that your
+%         cost function computation is correct by verifying the cost
+%         computed in ex4.m
+%
 z2=Theta1*([ones(size(X,1),1),X])';
-a2=1./(1+exp(z2));
+a2=1./(1+exp(-1*z2));
 
 z3=Theta2*[ones(1,size(a2,2));a2];
-a3=1./(1+exp(z3));
+a3=1./(1+exp(-1*z3));
 htheta=a3;
 
 yres = expandRowVector(size(y,1),num_labels,y);
@@ -45,16 +55,15 @@ for i=1:size(y,1)
 	J=J-yres2(:,i)'*log(htheta(:,i))-(1-yres2(:,i))'*log(1-htheta(:,i));
 endfor
 J=1/m*J;
-save 'tt.txt' X y htheta yres yres2;
-% ====================== YOUR CODE HERE ======================
-% Instructions: You should complete the code by working through the
-%               following parts.
-%
-% Part 1: Feedforward the neural network and return the cost in the
-%         variable J. After implementing Part 1, you can verify that your
-%         cost function computation is correct by verifying the cost
-%         computed in ex4.m
-%
+
+Theta1No1=Theta1(:,2:end);
+Theta1No1Up2=Theta1No1.^2;
+
+Theta2No1=Theta2(:,2:end);
+Theta2No1Up2=Theta2No1.^2;
+
+J=J+(lambda/(2*m))*(sum(sum(Theta1No1Up2))+sum(sum(Theta2No1Up2)));
+
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
 %         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
@@ -70,6 +79,39 @@ save 'tt.txt' X y htheta yres yres2;
 %               over the training examples if you are implementing it for the 
 %               first time.
 %
+
+
+
+for t= 1:m
+	a1=(X(t,:))';
+	A1=[1;a1];
+
+	z2=Theta1*A1;
+	a2=1./(1+exp(-1.*z2));
+	A2=[1;a2];
+
+	z3=Theta2*A2;
+	a3=1./(1+exp(-1.*z3));
+
+	delta3=a3-yres2(:,t);
+	% followin two lines are indeed like this
+	delta21=(Theta2'*delta3);
+	delta2=delta21(2:end).*sigmoidGradient(z2);
+	
+	Deltagrad1=delta2*A1';
+	Deltagrad2=delta3*A2';
+	Theta1_grad=Theta1_grad+Deltagrad1;
+	Theta2_grad=Theta2_grad+Deltagrad2;
+endfor
+Theta1_1at1=Theta1;
+Theta1_1at1(:,1)=zeros(size(Theta1_1at1,1),1);
+Theta2_1at1=Theta2;
+Theta2_1at1(:,1)=zeros(size(Theta2_1at1,1),1);
+Theta1_grad=Theta1_grad./m+lambda/m.*Theta1_1at1;
+Theta2_grad=Theta2_grad./m+lambda/m.*Theta2_1at1;
+%Theta1_grad=Theta1_grad./m;
+%Theta2_grad=Theta2_grad./m;
+
 % Part 3: Implement regularization with the cost function and gradients.
 %
 %         Hint: You can implement this around the code for
@@ -77,22 +119,6 @@ save 'tt.txt' X y htheta yres yres2;
 %               the regularization separately and then add them to Theta1_grad
 %               and Theta2_grad from Part 2.
 %
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
